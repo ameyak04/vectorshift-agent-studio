@@ -1,5 +1,6 @@
 // inputNode.js
 
+import { Inbox } from 'lucide-react';
 import { BaseNode } from './BaseNode';
 import { LabeledInput, LabeledSelect } from './fields';
 import { useNodeField } from './fields/useNodeField';
@@ -12,9 +13,10 @@ export const InputNode = ({ id, data }) => {
     <BaseNode
       id={id}
       title="Input"
-      icon="📥"
+      subtitle={id}
+      icon={Inbox}
       category="input"
-      handles={[{ type: 'source', position: 'right', id: `${id}-value` }]}
+      handles={[{ type: 'source', position: 'right', id: `${id}-value`, label: 'value' }]}
     >
       <LabeledInput label="Name" value={name} onChange={setName} />
       <LabeledSelect label="Type" value={type} onChange={setType} options={['Text', 'File']} />

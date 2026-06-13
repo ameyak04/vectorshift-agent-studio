@@ -7,10 +7,12 @@ import {
     applyEdgeChanges,
     MarkerType,
   } from 'reactflow';
+import { sampleNodes, sampleEdges, sampleNodeIDs } from './lib/samplePipeline';
 
 export const useStore = create((set, get) => ({
-    nodes: [],
-    edges: [],
+    nodes: sampleNodes,
+    edges: sampleEdges,
+    nodeIDs: sampleNodeIDs,
     getNodeID: (type) => {
         const newIDs = {...get().nodeIDs};
         if (newIDs[type] === undefined) {

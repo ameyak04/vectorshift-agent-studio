@@ -5,10 +5,12 @@
 // at once, and concrete nodes stay declarative.
 // ------------------------------------------------------------------
 
-const labelClass = 'flex flex-col gap-1 text-xs text-muted';
+const labelClass =
+  'flex flex-col gap-1 font-mono text-2xs font-medium uppercase tracking-[0.14em] text-faint';
 const controlClass =
-  'nodrag rounded-md bg-surface border border-border px-2 py-1 text-sm text-slate-100 ' +
-  'outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 placeholder:text-muted/60';
+  'nodrag rounded-[3px] bg-ink/60 border border-line px-2.5 py-1.5 text-sm font-sans font-normal normal-case tracking-normal text-paper ' +
+  'outline-none transition-colors focus:border-cyan/60 focus:ring-1 focus:ring-cyan/30 ' +
+  'placeholder:text-faint/70 hover:border-linebright';
 
 export const LabeledInput = ({ label, value, onChange, type = 'text', placeholder }) => (
   <label className={labelClass}>
@@ -56,5 +58,5 @@ export const LabeledTextarea = ({ label, value, onChange, placeholder, textareaR
 );
 
 export const NodeText = ({ children }) => (
-  <p className="text-sm text-slate-300 leading-relaxed">{children}</p>
+  <p className="text-sm text-muted leading-relaxed">{children}</p>
 );

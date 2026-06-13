@@ -1,5 +1,6 @@
 // apiNode.js — demo node: makes an outbound HTTP request.
 
+import { Globe } from 'lucide-react';
 import { BaseNode } from './BaseNode';
 import { LabeledInput, LabeledSelect } from './fields';
 import { useNodeField } from './fields/useNodeField';
@@ -12,11 +13,12 @@ export const ApiNode = ({ id }) => {
     <BaseNode
       id={id}
       title="API Request"
-      icon="🌐"
+      subtitle={id}
+      icon={Globe}
       category="api"
       handles={[
-        { type: 'target', position: 'left', id: `${id}-trigger` },
-        { type: 'source', position: 'right', id: `${id}-response` },
+        { type: 'target', position: 'left', id: `${id}-trigger`, label: 'trigger' },
+        { type: 'source', position: 'right', id: `${id}-response`, label: 'response' },
       ]}
     >
       <LabeledSelect

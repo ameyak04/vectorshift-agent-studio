@@ -2,68 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+  --cyan: #22d3ee;
+  --amber: #f5a524;
+  --ink: #0a0e14;
+  --line: #1b2a3d;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0b1120;
+  text-rendering: optimizeLegibility;
+  background-color: var(--ink);
+  color: #dbe7f2;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+code,
+.font-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 
-/* --- React Flow dark theme overrides --- */
-.react-flow__controls {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  border: 1px solid #2b3650;
-}
-.react-flow__controls-button {
-  background: #1c2536;
-  border-bottom: 1px solid #2b3650;
-  color: #e2e8f0;
-}
-.react-flow__controls-button:hover {
-  background: #243049;
-}
-.react-flow__controls-button svg {
-  fill: #cbd5e1;
+@layer components {
+  /* Blueprint drafting grid — fine + major lines over deep ink */
+  .blueprint-grid {
+    background-color: #0a0e14;
+    background-image:
+      linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+      linear-gradient(rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+      radial-gradient(circle at 30% 18%, rgba(34, 211, 238, 0.06), transparent 55%),
+      radial-gradient(circle at 85% 88%, rgba(245, 165, 36, 0.05), transparent 50%);
+    background-size: 28px 28px, 28px 28px, 140px 140px, 140px 140px, 100% 100%, 100% 100%;
+  }
+
+  /* Subtle film grain overlay */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* Panel surface (sidebar/header) */
+  .panel-surface {
+    background: rgba(12, 18, 28, 0.92);
+    border-color: #1b2a3d;
+  }
 }
 
-.react-flow__minimap {
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #2b3650;
+/* --- Custom scrollbars --- */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
 }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f3247;
+  border-radius: 2px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2b4763;
+  background-clip: padding-box;
+}
+
+/* ------------------------------------------------------------------ */
+/* React Flow — blueprint theme                                        */
+/* ------------------------------------------------------------------ */
 
 .react-flow__attribution {
   display: none;
 }
 
-/* Edges */
+.react-flow__controls {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #1b2a3d;
+  background: rgba(12, 18, 28, 0.92);
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.7);
+}
+.react-flow__controls-button {
+  background: transparent;
+  border-bottom: 1px solid #16243399;
+  color: #9fb0c4;
+  width: 28px;
+  height: 28px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.react-flow__controls-button:hover {
+  background: rgba(34, 211, 238, 0.14);
+  color: #22d3ee;
+}
+.react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.react-flow__minimap {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #1b2a3d;
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Edges — cyan signal wires, animated dashes */
 .react-flow__edge-path {
-  stroke: #6366f1;
-  stroke-width: 2;
+  stroke: #22d3ee;
+  stroke-width: 1.75;
+  filter: drop-shadow(0 0 3px rgba(34, 211, 238, 0.45));
+}
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.55s linear infinite;
+}
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
 }
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:focus .react-flow__edge-path {
-  stroke: #818cf8;
+  stroke: #f5a524;
+  stroke-width: 2.25;
+}
+.react-flow__connection-path {
+  stroke: #67e8f9;
+  stroke-width: 2;
+  stroke-dasharray: 4;
 }
 
-/* Connection handles */
+/* Handles — square cyan terminals (schematic connection points) */
 .react-flow__handle {
-  width: 11px;
-  height: 11px;
-  background: #1c2536;
-  border: 2px solid #6366f1;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #0a0e14;
+  border: 1.5px solid #22d3ee;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.1);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 .react-flow__handle:hover {
-  background: #6366f1;
+  background: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.22), 0 0 10px rgba(34, 211, 238, 0.6);
+  transform: scale(1.18);
+}
+.react-flow__handle-connecting {
+  background: #f5a524;
+  border-color: #f5a524;
+}
+.react-flow__handle-valid {
+  background: #34d399;
+  border-color: #34d399;
+}
+
+/* Node selection ring (driven by per-node --accent) */
+.react-flow__node.selected .vs-node {
+  box-shadow: 0 0 0 1px var(--accent, #22d3ee),
+    0 0 22px -4px var(--accent, #22d3ee),
+    0 8px 24px -8px rgba(0, 0, 0, 0.8);
+}
+
+[data-sonner-toast] {
+  font-family: 'IBM Plex Sans', sans-serif;
 }

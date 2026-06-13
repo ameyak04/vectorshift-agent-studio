@@ -1,5 +1,6 @@
 // timerNode.js — demo node: delays the flow by a configurable amount.
 
+import { Timer } from 'lucide-react';
 import { BaseNode } from './BaseNode';
 import { LabeledInput, LabeledSelect } from './fields';
 import { useNodeField } from './fields/useNodeField';
@@ -12,11 +13,12 @@ export const TimerNode = ({ id }) => {
     <BaseNode
       id={id}
       title="Timer"
-      icon="⏱️"
+      subtitle={id}
+      icon={Timer}
       category="timer"
       handles={[
-        { type: 'target', position: 'left', id: `${id}-in` },
-        { type: 'source', position: 'right', id: `${id}-out` },
+        { type: 'target', position: 'left', id: `${id}-in`, label: 'in' },
+        { type: 'source', position: 'right', id: `${id}-out`, label: 'out' },
       ]}
     >
       <LabeledInput label="Delay" type="number" value={delay} onChange={setDelay} />

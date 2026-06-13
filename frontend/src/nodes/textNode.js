@@ -10,6 +10,7 @@
 
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { useUpdateNodeInternals } from 'reactflow';
+import { FileText } from 'lucide-react';
 import { BaseNode } from './BaseNode';
 import { LabeledTextarea } from './fields';
 import { useNodeField } from './fields/useNodeField';
@@ -72,15 +73,17 @@ export const TextNode = ({ id, data }) => {
       type: 'target',
       position: 'left',
       id: `${id}-var-${name}`,
+      label: name,
     })),
-    { type: 'source', position: 'right', id: `${id}-output` },
+    { type: 'source', position: 'right', id: `${id}-output`, label: 'output' },
   ];
 
   return (
     <BaseNode
       id={id}
       title="Text"
-      icon="📝"
+      subtitle={id}
+      icon={FileText}
       category="text"
       handles={handles}
       style={{ width }}
@@ -93,11 +96,12 @@ export const TextNode = ({ id, data }) => {
         placeholder="Type text. Use {{ variable }} to add inputs."
       />
       {variables.length > 0 && (
-        <div className="flex flex-wrap gap-1 pt-0.5">
+        <div className="flex flex-wrap items-center gap-1 pt-0.5">
+          <span className="text-2xs text-faint mr-0.5">inputs</span>
           {variables.map((name) => (
             <span
               key={name}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-node-text/15 text-node-text font-medium"
+              className="text-2xs px-1.5 py-0.5 rounded-md bg-node-text/15 text-node-text font-mono font-medium"
             >
               {name}
             </span>

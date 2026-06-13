@@ -1,5 +1,6 @@
 // outputNode.js
 
+import { Send } from 'lucide-react';
 import { BaseNode } from './BaseNode';
 import { LabeledInput, LabeledSelect } from './fields';
 import { useNodeField } from './fields/useNodeField';
@@ -12,9 +13,10 @@ export const OutputNode = ({ id, data }) => {
     <BaseNode
       id={id}
       title="Output"
-      icon="📤"
+      subtitle={id}
+      icon={Send}
       category="output"
-      handles={[{ type: 'target', position: 'left', id: `${id}-value` }]}
+      handles={[{ type: 'target', position: 'left', id: `${id}-value`, label: 'value' }]}
     >
       <LabeledInput label="Name" value={name} onChange={setName} />
       <LabeledSelect

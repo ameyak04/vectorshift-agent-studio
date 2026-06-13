@@ -1,36 +1,30 @@
 // ui.js
-// Displays the drag-and-drop UI
+// The drafting canvas — React Flow with a blueprint grid + instrument chrome.
 // --------------------------------------------------
 
 import { useState, useRef, useCallback } from 'react';
 import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
+import { AnimatePresence } from 'framer-motion';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
-import { InputNode } from './nodes/inputNode';
-import { LLMNode } from './nodes/llmNode';
-import { OutputNode } from './nodes/outputNode';
-import { TextNode } from './nodes/textNode';
-import { MathNode } from './nodes/mathNode';
-import { ApiNode } from './nodes/apiNode';
-import { FilterNode } from './nodes/filterNode';
-import { NoteNode } from './nodes/noteNode';
-import { TimerNode } from './nodes/timerNode';
+import { nodeTypes, NODE_CATALOG } from './lib/nodeCatalog';
+import { CATEGORY_ACCENTS } from './nodes/BaseNode';
+import { EmptyState } from './components/EmptyState';
 
 import 'reactflow/dist/style.css';
 
 const gridSize = 20;
 const proOptions = { hideAttribution: true };
-const nodeTypes = {
-  customInput: InputNode,
-  llm: LLMNode,
-  customOutput: OutputNode,
-  text: TextNode,
-  math: MathNode,
-  api: ApiNode,
-  filter: FilterNode,
-  note: NoteNode,
-  timer: TimerNode,
-};
+
+const TYPE_ACCENT = NODE_CATALOG.reduce((acc, n) => {
+  acc[n.type] = CATEGORY_ACCENTS[n.category] || CATEGORY_ACCENTS.default;
+  return acc;
+}, {});
+
+// L-shaped registration mark, drafting-table style.
+const RegMark = ({ className }) => (
+  <span className={`pointer-events-none absolute w-3.5 h-3.5 ${className}`} />
+);
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -43,87 +37,91 @@ const selector = (state) => ({
 });
 
 export const PipelineUI = () => {
-    const reactFlowWrapper = useRef(null);
-    const [reactFlowInstance, setReactFlowInstance] = useState(null);
-    const {
-      nodes,
-      edges,
-      getNodeID,
-      addNode,
-      onNodesChange,
-      onEdgesChange,
-      onConnect
-    } = useStore(selector, shallow);
+  const reactFlowWrapper = useRef(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const {
+    nodes,
+    edges,
+    getNodeID,
+    addNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+  } = useStore(selector, shallow);
 
-    const getInitNodeData = (nodeID, type) => {
-      let nodeData = { id: nodeID, nodeType: `${type}` };
-      return nodeData;
-    }
+  const getInitNodeData = (nodeID, type) => ({ id: nodeID, nodeType: `${type}` });
 
-    const onDrop = useCallback(
-        (event) => {
-          event.preventDefault();
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      if (event?.dataTransfer?.getData('application/reactflow')) {
+        const appData = JSON.parse(event.dataTransfer.getData('application/reactflow'));
+        const type = appData?.nodeType;
+        if (typeof type === 'undefined' || !type) return;
 
-          const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-          if (event?.dataTransfer?.getData('application/reactflow')) {
-            const appData = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-            const type = appData?.nodeType;
+        const position = reactFlowInstance.project({
+          x: event.clientX - reactFlowBounds.left,
+          y: event.clientY - reactFlowBounds.top,
+        });
 
-            // check if the dropped element is valid
-            if (typeof type === 'undefined' || !type) {
-              return;
-            }
+        const nodeID = getNodeID(type);
+        addNode({ id: nodeID, type, position, data: getInitNodeData(nodeID, type) });
+      }
+    },
+    [reactFlowInstance, addNode, getNodeID]
+  );
 
-            const position = reactFlowInstance.project({
-              x: event.clientX - reactFlowBounds.left,
-              y: event.clientY - reactFlowBounds.top,
-            });
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
-            const nodeID = getNodeID(type);
-            const newNode = {
-              id: nodeID,
-              type,
-              position,
-              data: getInitNodeData(nodeID, type),
-            };
+  return (
+    <div ref={reactFlowWrapper} className="grain absolute inset-0 bg-ink overflow-hidden">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onInit={setReactFlowInstance}
+        nodeTypes={nodeTypes}
+        proOptions={proOptions}
+        snapGrid={[gridSize, gridSize]}
+        connectionLineType="smoothstep"
+        defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
+        fitView
+      >
+        {/* Panning blueprint grid: fine + major rulings */}
+        <Background id="fine" variant={BackgroundVariant.Lines} gap={28} color="rgba(34,211,238,0.05)" />
+        <Background id="major" variant={BackgroundVariant.Lines} gap={140} color="rgba(34,211,238,0.10)" lineWidth={1} />
+        <Controls showInteractive={false} />
+        <MiniMap
+          pannable
+          zoomable
+          maskColor="rgba(10, 14, 20, 0.82)"
+          nodeColor={(n) => TYPE_ACCENT[n.type] || '#22d3ee'}
+          nodeStrokeColor="transparent"
+          nodeBorderRadius={2}
+          style={{ background: '#0c121c' }}
+        />
+      </ReactFlow>
 
-            addNode(newNode);
-          }
-        },
-        [reactFlowInstance]
-    );
-
-    const onDragOver = useCallback((event) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
-    }, []);
-
-    return (
-        <div ref={reactFlowWrapper} className="flex-1 w-full">
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                onInit={setReactFlowInstance}
-                nodeTypes={nodeTypes}
-                proOptions={proOptions}
-                snapGrid={[gridSize, gridSize]}
-                connectionLineType='smoothstep'
-                fitView
-            >
-                <Background color="#243049" gap={gridSize} variant={BackgroundVariant.Dots} />
-                <Controls />
-                <MiniMap
-                    maskColor="rgba(11, 17, 32, 0.7)"
-                    nodeColor="#1c2536"
-                    nodeStrokeColor="#6366f1"
-                    style={{ background: '#0f1729' }}
-                />
-            </ReactFlow>
+      {/* Instrument chrome (static, above grid, below nodes) */}
+      <div className="pointer-events-none absolute inset-3 z-[2]">
+        <RegMark className="top-0 left-0 border-t border-l border-cyan/40" />
+        <RegMark className="top-0 right-0 border-t border-r border-cyan/40" />
+        <RegMark className="bottom-0 left-0 border-b border-l border-cyan/40" />
+        <RegMark className="bottom-0 right-0 border-b border-r border-cyan/40" />
+        <div className="absolute top-0 left-5 font-mono text-2xs tracking-[0.2em] text-cyan/40">
+          {'// CANVAS · GRID_28'}
         </div>
-    )
-}
+      </div>
+
+      <AnimatePresence>{nodes.length === 0 && <EmptyState />}</AnimatePresence>
+    </div>
+  );
+};

@@ -1,24 +1,33 @@
-import { PipelineToolbar } from './toolbar';
+import { Toaster } from 'sonner';
+import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
 import { PipelineUI } from './ui';
-import { SubmitButton } from './submit';
 
 function App() {
   return (
-    <div className="flex flex-col h-screen w-screen bg-canvas overflow-hidden">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-5 py-3 bg-surface border-b border-border">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent text-white font-bold">
-          VS
-        </div>
-        <div>
-          <h1 className="text-base font-semibold text-slate-100 leading-tight">VectorShift</h1>
-          <p className="text-xs text-muted leading-tight">Pipeline Builder</p>
-        </div>
-      </header>
+    <div className="flex flex-col h-screen w-screen bg-ink overflow-hidden text-paper">
+      <Header />
+      <div className="flex flex-1 min-h-0">
+        <Sidebar />
+        <main className="relative flex-1 min-w-0">
+          <PipelineUI />
+        </main>
+      </div>
 
-      <PipelineToolbar />
-      <PipelineUI />
-      <SubmitButton />
+      <Toaster
+        position="bottom-right"
+        theme="dark"
+        toastOptions={{
+          unstyled: false,
+          style: {
+            background: 'rgba(12, 18, 28, 0.95)',
+            border: '1px solid #1b2a3d',
+            borderRadius: '4px',
+            color: '#dbe7f2',
+            fontFamily: '"IBM Plex Sans", sans-serif',
+          },
+        }}
+      />
     </div>
   );
 }
