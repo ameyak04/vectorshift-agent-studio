@@ -75,9 +75,19 @@ export const useSubmitPipeline = () => {
 
       toast.dismiss(toastId);
       finishRun(summaryData);
-      
       if (summaryData) {
-        toast.success(`Pipeline executed! ${summaryData.is_dag ? '(Valid DAG)' : ''}`);
+        window.alert(
+          `Pipeline Execution Summary\n` +
+          `--------------------------\n` +
+          `Number of Nodes: ${summaryData.num_nodes}\n` +
+          `Number of Edges: ${summaryData.num_edges}\n` +
+          `Is Directed Acyclic Graph (DAG): ${summaryData.is_dag ? 'Yes' : 'No'}`
+        );
+        if (summaryData.is_dag) {
+          toast.success('Pipeline executed! (Valid DAG)');
+        } else {
+          toast.warning('Pipeline execution stopped! (Contains Cycles)');
+        }
       }
     } catch (err) {
       toast.dismiss(toastId);
