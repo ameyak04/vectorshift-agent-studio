@@ -1,0 +1,22 @@
+# Render blueprint for the FastAPI backend.
+# Deploy: New + → "Blueprint" → point at this repo. Render reads this file.
+services:
+  - type: web
+    name: vectorshift-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      # Set these in the Render dashboard (sync: false keeps them out of git):
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Comma-separated frontend origin(s), e.g. https://your-app.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false

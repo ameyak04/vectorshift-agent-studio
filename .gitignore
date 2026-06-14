@@ -11,3 +11,15 @@ env/
 # Node (frontend dependencies/build are also covered by frontend/.gitignore)
 node_modules/
 /frontend/build
+
+# Secrets — never commit API keys
+.env
+*.env
+!*.env.example
+
+# Backend local-first store (runtime data)
+backend/data/
+
+# Local scratch / debug scripts
+backend/test_*.py
+backend/test_*.json

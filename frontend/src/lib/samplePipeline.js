@@ -1,47 +1,23 @@
-// samplePipeline.js
-// ------------------------------------------------------------------
-// A starter pipeline loaded on first open. It deliberately exercises
-// every feature so the app demonstrates itself:
-//   - all 9 node types (input, output, llm, text, math, api, filter,
-//     timer, note)
-//   - the Text node's dynamic {{variable}} handles (3 variables)
-//   - multi-input handle nodes (LLM: system+prompt, Math: a+b)
-//   - a standalone node with no handles (Note)
-//   - a valid DAG, so "Run" reports is_dag: true
-// ------------------------------------------------------------------
-
 export const sampleNodes = [
-  // Inputs (column 0)
-  { id: 'customInput-1', type: 'customInput', position: { x: 40, y: 40 },
-    data: { id: 'customInput-1', nodeType: 'customInput', inputName: 'name', inputType: 'Text' } },
-  { id: 'customInput-2', type: 'customInput', position: { x: 40, y: 230 },
-    data: { id: 'customInput-2', nodeType: 'customInput', inputName: 'age', inputType: 'Text' } },
-  { id: 'customInput-3', type: 'customInput', position: { x: 40, y: 420 },
-    data: { id: 'customInput-3', nodeType: 'customInput', inputName: 'topic', inputType: 'Text' } },
-  { id: 'api-1', type: 'api', position: { x: 40, y: 600 },
-    data: { id: 'api-1', nodeType: 'api', method: 'GET', url: 'https://api.vectorshift.ai/context' } },
+  // Agent Pipeline
+  { id: 'customInput-1', type: 'customInput', position: { x: 50, y: 150 },
+    data: { id: 'customInput-1', nodeType: 'customInput', inputName: 'goal', inputType: 'Text', inputValue: 'Find the current population of the world and multiply it by 10.' } },
+    
+  { id: 'tool-1', type: 'tool', position: { x: 50, y: 350 },
+    data: { id: 'tool-1', nodeType: 'tool', toolName: 'search_web', toolKind: 'web_search', toolDesc: 'Search the internet for facts.' } },
+    
+  { id: 'tool-2', type: 'tool', position: { x: 50, y: 580 },
+    data: { id: 'tool-2', nodeType: 'tool', toolName: 'calculator', toolKind: 'calculator', toolDesc: 'Calculate mathematical expressions.' } },
 
-  // Transform (column 1)
-  { id: 'text-1', type: 'text', position: { x: 380, y: 60 },
-    data: { id: 'text-1', nodeType: 'text', text: 'Hi {{name}}, you are {{age}}. Topic: {{topic}}' } },
-  { id: 'math-1', type: 'math', position: { x: 380, y: 380 },
-    data: { id: 'math-1', nodeType: 'math', operation: 'add' } },
-  { id: 'timer-1', type: 'timer', position: { x: 380, y: 600 },
-    data: { id: 'timer-1', nodeType: 'timer', delay: '5', unit: 'seconds' } },
+  { id: 'agent-1', type: 'agent', position: { x: 450, y: 200 },
+    data: { id: 'agent-1', nodeType: 'agent' } },
 
-  // Logic / model (column 2)
-  { id: 'llm-1', type: 'llm', position: { x: 800, y: 80 },
-    data: { id: 'llm-1', nodeType: 'llm' } },
-  { id: 'filter-1', type: 'filter', position: { x: 800, y: 400 },
-    data: { id: 'filter-1', nodeType: 'filter', condition: 'result > 0' } },
-  { id: 'note-1', type: 'note', position: { x: 800, y: 600 },
-    data: { id: 'note-1', nodeType: 'note', note: 'Sample pipeline — every node type, wired into a DAG.' } },
+  { id: 'markdownOutput-1', type: 'markdownOutput', position: { x: 800, y: 200 },
+    data: { id: 'markdownOutput-1', nodeType: 'markdownOutput' } },
 
-  // Outputs (column 3)
-  { id: 'customOutput-1', type: 'customOutput', position: { x: 1180, y: 110 },
-    data: { id: 'customOutput-1', nodeType: 'customOutput', outputName: 'completion', outputType: 'Text' } },
-  { id: 'customOutput-2', type: 'customOutput', position: { x: 1180, y: 420 },
-    data: { id: 'customOutput-2', nodeType: 'customOutput', outputName: 'score', outputType: 'Text' } },
+  // Note
+  { id: 'note-1', type: 'note', position: { x: 800, y: 50 },
+    data: { id: 'note-1', nodeType: 'note', note: 'Agent builder demo! Click "Run" to watch the agent loop through these tools dynamically.' } },
 ];
 
 const edge = (id, source, sourceHandle, target, targetHandle) => ({
@@ -49,33 +25,38 @@ const edge = (id, source, sourceHandle, target, targetHandle) => ({
 });
 
 export const sampleEdges = [
-  // inputs -> text variables
-  edge('e-name', 'customInput-1', 'customInput-1-value', 'text-1', 'text-1-var-name'),
-  edge('e-age', 'customInput-2', 'customInput-2-value', 'text-1', 'text-1-var-age'),
-  edge('e-topic', 'customInput-3', 'customInput-3-value', 'text-1', 'text-1-var-topic'),
-  // text + api -> llm (prompt + system)
-  edge('e-prompt', 'text-1', 'text-1-output', 'llm-1', 'llm-1-prompt'),
-  edge('e-system', 'api-1', 'api-1-response', 'llm-1', 'llm-1-system'),
-  // llm -> output
-  edge('e-completion', 'llm-1', 'llm-1-response', 'customOutput-1', 'customOutput-1-value'),
-  // numeric branch: inputs -> math -> filter -> timer -> output
-  edge('e-math-a', 'customInput-1', 'customInput-1-value', 'math-1', 'math-1-a'),
-  edge('e-math-b', 'customInput-2', 'customInput-2-value', 'math-1', 'math-1-b'),
-  edge('e-filter', 'math-1', 'math-1-result', 'filter-1', 'filter-1-in'),
-  edge('e-timer', 'filter-1', 'filter-1-out', 'timer-1', 'timer-1-in'),
-  edge('e-score', 'timer-1', 'timer-1-out', 'customOutput-2', 'customOutput-2-value'),
+  edge('e-prompt', 'customInput-1', 'customInput-1-value', 'agent-1', 'agent-1-prompt'),
+  edge('e-tool1', 'tool-1', 'tool-1-handle', 'agent-1', 'agent-1-tools'),
+  edge('e-tool2', 'tool-2', 'tool-2-handle', 'agent-1', 'agent-1-tools'),
+  edge('e-out', 'agent-1', 'agent-1-response', 'markdownOutput-1', 'markdownOutput-1-input'),
 ];
 
-// Seed the per-type ID counters so newly dragged nodes don't collide
-// with the sample's IDs (e.g. the next Input becomes customInput-4).
 export const sampleNodeIDs = {
-  customInput: 3,
-  customOutput: 2,
-  text: 1,
-  llm: 1,
-  math: 1,
-  api: 1,
-  filter: 1,
-  timer: 1,
+  customInput: 1,
+  customOutput: 0,
+  markdownOutput: 1,
+  text: 0,
+  llm: 0,
+  math: 0,
+  api: 0,
+  filter: 0,
+  timer: 0,
   note: 1,
+  agent: 1,
+  tool: 2
 };
+
+export const sampleEvals = [
+  {
+    id: "case-1",
+    name: "World Population Math",
+    inputs: { "customInput-1": "Find the current population of the world and multiply it by 10." },
+    assertion: { type: "regex", target_node: "agent-1", expected: "([0-9]+)" }
+  },
+  {
+    id: "case-2",
+    name: "Simple Greeting",
+    inputs: { "customInput-1": "Just say hello!" },
+    assertion: { type: "contains", target_node: "agent-1", expected: "hello" }
+  }
+];

@@ -1,17 +1,22 @@
 import { Toaster } from 'sonner';
+import { AnimatePresence } from 'framer-motion';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
+import { Inspector } from './components/Inspector';
 import { PipelineUI } from './ui';
 
 function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-ink overflow-hidden text-paper">
       <Header />
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 relative">
         <Sidebar />
         <main className="relative flex-1 min-w-0">
           <PipelineUI />
         </main>
+        <AnimatePresence>
+          <Inspector />
+        </AnimatePresence>
       </div>
 
       <Toaster

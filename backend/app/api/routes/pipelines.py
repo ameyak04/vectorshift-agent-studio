@@ -1,17 +1,19 @@
 from fastapi import APIRouter
-from app.models.pipeline import Pipeline
-from app.services.graph import is_dag, execute_pipeline
+from fastapi.responses import StreamingResponse
+from app.models.pipeline import Pipeline, EvalRequest
+from app.services.graph import execute_pipeline
+from app.services.eval import evaluate_cases
 
 router = APIRouter()
 
 @router.post("/parse")
-def parse_pipeline(pipeline: Pipeline):
-    node_ids = [node.get('id') for node in pipeline.nodes if node.get('id')]
-    trace = execute_pipeline(pipeline.nodes, pipeline.edges)
-    
-    return {
-        'num_nodes': len(pipeline.nodes),
-        'num_edges': len(pipeline.edges),
-        'is_dag': is_dag(node_ids, pipeline.edges),
-        'execution_trace': trace
-    }
+async def parse_pipeline(pipeline: Pipeline):
+    return StreamingResponse(
+        execute_pipeline(pipeline.nodes, pipeline.edges),
+        media_type="text/event-stream"
+    )
+
+@router.post("/evaluate")
+async def evaluate_pipeline(req: EvalRequest):
+    results = await evaluate_cases(req.nodes, req.edges, req.cases)
+    return {"results": results}

@@ -2,8 +2,8 @@
 // The drafting canvas — React Flow with a blueprint grid + instrument chrome.
 // --------------------------------------------------
 
-import { useState, useRef, useCallback } from 'react';
-import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant, MarkerType } from 'reactflow';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
@@ -28,7 +28,8 @@ const RegMark = ({ className }) => (
 
 const selector = (state) => ({
   nodes: state.nodes,
-  edges: state.edges,
+  baseEdges: state.edges,
+  trajectory: state.trajectory,
   getNodeID: state.getNodeID,
   addNode: state.addNode,
   onNodesChange: state.onNodesChange,
@@ -41,13 +42,32 @@ export const PipelineUI = () => {
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const {
     nodes,
-    edges,
+    baseEdges,
+    trajectory,
     getNodeID,
     addNode,
     onNodesChange,
     onEdgesChange,
     onConnect,
   } = useStore(selector, shallow);
+
+  const edges = useMemo(() => {
+    const trajectoryEdges = trajectory
+      .filter((step) => step.type === 'tool_call')
+      .map((step) => ({
+        id: `traj-${step.agent_id}-${step.tool_node_id}-${step.step}`,
+        source: step.agent_id,
+        target: step.tool_node_id,
+        type: 'smoothstep',
+        animated: true,
+        label: `Step ${step.step}`,
+        labelStyle: { fill: '#c084fc', fontWeight: 700, fontFamily: 'monospace', fontSize: 10 },
+        labelBgStyle: { fill: '#0c121c', stroke: '#c084fc', strokeWidth: 1 },
+        style: { stroke: '#c084fc', strokeWidth: 2, strokeDasharray: '4 4' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#c084fc' }
+      }));
+    return [...baseEdges, ...trajectoryEdges];
+  }, [baseEdges, trajectory]);
 
   const getInitNodeData = (nodeID, type) => ({ id: nodeID, nodeType: `${type}` });
 
