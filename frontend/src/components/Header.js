@@ -1,8 +1,6 @@
-// Header.js — blueprint instrument top bar.
-
-import { motion } from 'framer-motion';
-import { Play, Loader2, Workflow } from 'lucide-react';
+import { Workflow } from 'lucide-react';
 import { useSubmitPipeline } from '../hooks/useSubmitPipeline';
+import { Button } from './ui/Button';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -32,29 +30,26 @@ export const Header = () => {
       {/* Telemetry readout */}
       <div className="hidden sm:flex items-center gap-3 font-mono text-2xs text-muted mr-1">
         <span className="flex items-center gap-1.5">
-          <span className="text-faint tracking-widest">NODES</span>
+          <span className="text-slate-500 tracking-widest">NODES</span>
           <span className="text-cyan tabular-nums">{pad(nodeCount)}</span>
         </span>
         <span className="w-px h-4 bg-line" />
         <span className="flex items-center gap-1.5">
-          <span className="text-faint tracking-widest">EDGES</span>
+          <span className="text-slate-500 tracking-widest">EDGES</span>
           <span className="text-cyan tabular-nums">{pad(edgeCount)}</span>
         </span>
       </div>
 
       {/* Run — amber action */}
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
+      <Button
+        variant="primary"
+        size="md"
         onClick={run}
-        disabled={loading}
-        className="group flex items-center gap-2 h-9 px-4 font-mono text-xs font-semibold uppercase tracking-widest
-                   text-ink bg-amber border border-amber shadow-action transition
-                   hover:bg-amber/90 disabled:opacity-70 disabled:cursor-not-allowed"
+        isLoading={loading}
+        className="font-mono uppercase tracking-widest bg-amber text-ink hover:bg-amber/90 shadow-amber/20"
       >
-        {loading ? <Loader2 size={14} className="animate-spin" /> : <Play size={13} fill="currentColor" />}
         {loading ? 'Running' : 'Run'}
-      </motion.button>
+      </Button>
     </header>
   );
 };

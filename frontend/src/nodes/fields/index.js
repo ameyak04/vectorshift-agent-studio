@@ -1,62 +1,60 @@
-// fields/index.js
-// ------------------------------------------------------------------
-// Reusable, consistently-styled form controls for node bodies.
-// Centralizing them means a styling change applies across every node
-// at once, and concrete nodes stay declarative.
-// ------------------------------------------------------------------
-
-const labelClass =
-  'flex flex-col gap-1 font-mono text-2xs font-medium uppercase tracking-[0.14em] text-faint';
-const controlClass =
-  'nodrag rounded-[3px] bg-ink/60 border border-line px-2.5 py-1.5 text-sm font-sans font-normal normal-case tracking-normal text-paper ' +
-  'outline-none transition-colors focus:border-cyan/60 focus:ring-1 focus:ring-cyan/30 ' +
-  'placeholder:text-faint/70 hover:border-linebright';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
+import { cn } from '../../lib/utils';
 
 export const LabeledInput = ({ label, value, onChange, type = 'text', placeholder }) => (
-  <label className={labelClass}>
-    {label && <span>{label}</span>}
-    <input
-      type={type}
-      className={controlClass}
-      value={value}
-      placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  </label>
+  <Input
+    className="nodrag"
+    label={label}
+    type={type}
+    value={value}
+    placeholder={placeholder}
+    onChange={(e) => onChange(e.target.value)}
+  />
 );
 
-export const LabeledSelect = ({ label, value, onChange, options = [] }) => (
-  <label className={labelClass}>
-    {label && <span>{label}</span>}
-    <select className={controlClass} value={value} onChange={(e) => onChange(e.target.value)}>
-      {options.map((opt) => {
-        const val = typeof opt === 'string' ? opt : opt.value;
-        const text = typeof opt === 'string' ? opt : opt.label;
-        return (
-          <option key={val} value={val}>
-            {text}
-          </option>
-        );
-      })}
-    </select>
-  </label>
-);
+export const LabeledSelect = ({ label, value, onChange, options = [] }) => {
+  const formattedOptions = options.map((opt) => ({
+    label: typeof opt === 'string' ? opt : opt.label,
+    value: typeof opt === 'string' ? opt : opt.value,
+  }));
 
-export const LabeledTextarea = ({ label, value, onChange, placeholder, textareaRef, style, rows }) => (
-  <label className={labelClass}>
-    {label && <span>{label}</span>}
-    <textarea
-      ref={textareaRef}
-      className={`${controlClass} resize-none leading-relaxed`}
+  return (
+    <Select
+      className="nodrag"
+      label={label}
       value={value}
-      rows={rows}
-      placeholder={placeholder}
-      style={style}
       onChange={(e) => onChange(e.target.value)}
+      options={formattedOptions}
     />
-  </label>
-);
+  );
+};
+
+export const LabeledTextarea = ({ label, value, onChange, placeholder, textareaRef, style, rows }) => {
+  const id = `textarea-${label}`;
+  return (
+    <div className="w-full space-y-1">
+      {label && (
+        <label htmlFor={id} className="text-xs font-medium text-slate-300">
+          {label}
+        </label>
+      )}
+      <textarea
+        id={id}
+        ref={textareaRef}
+        className={cn(
+          "nodrag flex w-full rounded-md border border-line bg-[#0c121c] px-3 py-2 text-sm text-paper shadow-sm transition-colors placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan disabled:cursor-not-allowed disabled:opacity-50 resize-none leading-relaxed"
+        )}
+        value={value}
+        rows={rows}
+        placeholder={placeholder}
+        style={style}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+};
 
 export const NodeText = ({ children }) => (
-  <p className="text-sm text-muted leading-relaxed">{children}</p>
+  <p className="text-sm text-slate-400 leading-relaxed">{children}</p>
 );

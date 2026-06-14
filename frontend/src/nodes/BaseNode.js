@@ -1,16 +1,7 @@
-// BaseNode.js
-// ------------------------------------------------------------------
-// Config-driven node shell — the blueprint "component cell" every
-// concrete node builds on. It owns shared chrome (hairline card,
-// mono category header, accent terminal chip) and renders React Flow
-// Handles with optional mono labels. A concrete node only declares
-// what differs: title, icon, category, handles, and body fields.
-// ------------------------------------------------------------------
-
 import { Handle, Position } from 'reactflow';
 import { motion } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 
-// Per-category accent colors (the "signal" color of each node).
 export const CATEGORY_ACCENTS = {
   input: '#34d399',
   output: '#f472b6',
@@ -33,17 +24,6 @@ const POSITION_MAP = {
 
 const distribute = (count, index) => `${(100 * (index + 1)) / (count + 1)}%`;
 
-/**
- * @param {object} props
- * @param {string} props.id
- * @param {string} props.title
- * @param {React.ComponentType} [props.icon] - a lucide-react icon component
- * @param {string} [props.category]
- * @param {string} [props.subtitle]
- * @param {Array}  [props.handles] - [{ type, position, id, label, style }]
- * @param {React.CSSProperties} [props.style]
- * @param {React.ReactNode} props.children
- */
 export const BaseNode = ({
   id,
   title,
@@ -67,43 +47,42 @@ export const BaseNode = ({
       initial={{ opacity: 0, scale: 0.97, y: 6 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      className="vs-node relative bg-panel border border-line shadow-node text-paper min-w-[212px]
-                 transition-shadow duration-200 hover:shadow-nodeHover"
-      style={{ '--accent': accent, borderRadius: 5, ...style }}
+      className="vs-node relative min-w-[212px]"
+      style={{ '--accent': accent, ...style }}
     >
-      {/* Accent index strip down the left edge */}
-      <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: accent }} />
-
-      {/* Header */}
-      <div
-        className="flex items-center gap-2.5 pl-3 pr-3 pt-2.5 pb-2 border-b border-line"
-        style={{ background: `linear-gradient(180deg, ${accent}16, transparent)` }}
-      >
-        {Icon && (
-          <span
-            className="grid place-items-center w-6 h-6 shrink-0 border"
-            style={{ color: accent, borderColor: `${accent}55`, background: `${accent}14` }}
-          >
-            <Icon size={13} strokeWidth={2.25} />
-          </span>
-        )}
-        <div className="min-w-0">
-          <div
-            className="font-mono text-2xs font-semibold uppercase tracking-[0.16em] leading-tight"
-            style={{ color: accent }}
-          >
-            {title}
-          </div>
-          {subtitle && (
-            <div className="font-mono text-2xs text-faint leading-tight truncate">{subtitle}</div>
+      <Card className="overflow-hidden border border-line shadow-node transition-shadow duration-200 hover:shadow-nodeHover group">
+        <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent }} />
+        <CardHeader 
+          className="flex-row items-center gap-2.5 p-3 space-y-0"
+          style={{ background: `linear-gradient(180deg, ${accent}16, transparent)` }}
+        >
+          {Icon && (
+            <span
+              className="grid place-items-center w-6 h-6 shrink-0 rounded border"
+              style={{ color: accent, borderColor: `${accent}40`, background: `${accent}14` }}
+            >
+              <Icon size={14} strokeWidth={2} />
+            </span>
           )}
-        </div>
-      </div>
+          <div className="min-w-0">
+            <CardTitle
+              className="font-mono text-xs uppercase tracking-wider"
+              style={{ color: accent }}
+            >
+              {title}
+            </CardTitle>
+            {subtitle && (
+              <div className="font-mono text-[10px] text-slate-400 leading-tight truncate mt-0.5">
+                {subtitle}
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="p-3 bg-ink/50 backdrop-blur-sm flex flex-col gap-3">
+          {children}
+        </CardContent>
+      </Card>
 
-      {/* Body */}
-      <div className="px-3 py-3 flex flex-col gap-2.5">{children}</div>
-
-      {/* Handles + mono labels */}
       {handles.map((h) => {
         const total = sideCounts[h.position];
         const idx = sideIndex[h.position] || 0;
@@ -124,14 +103,19 @@ export const BaseNode = ({
 
         return (
           <div key={h.id}>
-            <Handle type={h.type} position={POSITION_MAP[h.position] || Position.Left} id={h.id} style={handleStyle} />
+            <Handle 
+              type={h.type} 
+              position={POSITION_MAP[h.position] || Position.Left} 
+              id={h.id} 
+              style={handleStyle} 
+            />
             {h.label && (isLeft || isRight) && (
               <span
-                className="pointer-events-none absolute font-mono text-2xs text-faint whitespace-nowrap"
+                className="pointer-events-none absolute font-mono text-[10px] text-slate-400 whitespace-nowrap bg-ink/80 px-1 py-0.5 rounded backdrop-blur-sm"
                 style={{
                   top: topVal,
                   transform: 'translateY(-50%)',
-                  ...(isLeft ? { right: '100%', marginRight: 9 } : { left: '100%', marginLeft: 9 }),
+                  ...(isLeft ? { right: '100%', marginRight: 12 } : { left: '100%', marginLeft: 12 }),
                 }}
               >
                 {h.label}

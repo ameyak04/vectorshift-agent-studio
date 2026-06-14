@@ -10,8 +10,7 @@ import { toast } from 'sonner';
 import { useStore } from '../store';
 import { shallow } from 'zustand/shallow';
 import { ResultToast } from '../components/ResultToast';
-
-const BACKEND_URL = 'http://localhost:8000/pipelines/parse';
+import { api } from '../services/api';
 
 const selector = (s) => ({ nodes: s.nodes, edges: s.edges });
 
@@ -32,14 +31,7 @@ export const useSubmitPipeline = () => {
     const toastId = toast.loading('Analyzing pipeline…');
 
     try {
-      const res = await fetch(BACKEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodes, edges }),
-      });
-      if (!res.ok) throw new Error(`Server responded with ${res.status}`);
-
-      const { num_nodes, num_edges, is_dag } = await res.json();
+      const { num_nodes, num_edges, is_dag, execution_trace } = await api.parsePipeline(nodes, edges);
 
       toast.dismiss(toastId);
       toast.custom(
@@ -48,15 +40,16 @@ export const useSubmitPipeline = () => {
             numNodes={num_nodes}
             numEdges={num_edges}
             isDag={is_dag}
+            executionTrace={execution_trace}
             onClose={() => toast.dismiss(t)}
           />
         ),
-        { duration: 6000 }
+        { duration: Infinity }
       );
     } catch (err) {
       toast.dismiss(toastId);
       toast.error('Could not reach the backend', {
-        description: 'Run it with:  cd backend && uvicorn main:app --reload',
+        description: 'Run it with:  cd backend && uvicorn app.main:app --reload',
         duration: 7000,
       });
     } finally {
