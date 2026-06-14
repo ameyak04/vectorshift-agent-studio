@@ -1,5 +1,9 @@
 # VectorShift — Agent Studio
 
+**Live demo:** https://vectorshift-agent-studio.vercel.app  ·  API: https://vectorshift-backend-3asr.onrender.com
+
+> The backend runs on Render's free tier and sleeps after ~15 min idle — the first request may take ~50s to wake it.
+
 A visual builder for **agents**, not just workflows.
 
 Every drag-and-drop builder ships the same primitive: a static, human-wired DAG where *you* decide the path. But the line between a **workflow** and an **agent** is that an agent decides its own path at runtime — it picks which tool to call, loops, and stops when done. A DAG can't represent that. So this app makes the agent a first-class node: you wire it to a set of *available* tools, hit Run, and watch the **live trajectory** it actually chose — different per input — stream onto the canvas with a reasoning timeline.

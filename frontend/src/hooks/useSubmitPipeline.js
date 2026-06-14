@@ -9,7 +9,6 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useStore } from '../store';
 import { shallow } from 'zustand/shallow';
-import { ResultToast } from '../components/ResultToast';
 import { api } from '../services/api';
 
 const selector = (s) => ({ 

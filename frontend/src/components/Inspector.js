@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useStore } from '../store';
 import { shallow } from 'zustand/shallow';
 import { X, Clock, Activity, Code2, Bot, Wrench, FileText, CheckCircle2 } from 'lucide-react';
